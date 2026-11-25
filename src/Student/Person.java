@@ -1,5 +1,5 @@
 package Student;
-
+//parent class
 public class Person {
    // access modifier
     private int Id;
@@ -7,6 +7,7 @@ public class Person {
     private String gender;
     private String DOB;
 
+    // Constructor
     public Person(int id, String name, String gender, String DOB) {
         this.Id = id;
         this.name = name;
@@ -14,6 +15,7 @@ public class Person {
         this.DOB = DOB;
     }
 
+//getter and setters
     public int getId() {
         return Id;
     }

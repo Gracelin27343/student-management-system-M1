@@ -8,7 +8,7 @@ public class Student extends Person{
     private String AdmissionDate ;
     private boolean status;
 
-    //contructor
+    //contractor
     public Student(int id, String name, String gender, String DOB, String department, String course, String admissionDate,boolean status) {
         super(id, name, gender, DOB);
         this.Department = department;
@@ -50,6 +50,7 @@ public class Student extends Person{
         this.status = status;
     }
 
+    // Method overriding
     @Override
     public void displayDetails(){
         super.displayDetails();

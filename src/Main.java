@@ -1,22 +1,23 @@
+import Operations.StudentFeatures;
+import Student.Student;
+import Util.InputValidator;
 import java.util.Scanner;
 
-import Student.Student;
-import Operations.StudentFeatures;
-
 public class Main {
+
+    private static final Scanner sc = new Scanner(System.in);
+
     public static void main(String[] args) {
 
-        Scanner sc = new Scanner(System.in);
-       //object
         StudentFeatures features = new StudentFeatures();
 
-        // Load existing records
+        // Load existing student records.
         features.loadData();
-        int choice = 0;
+        boolean running = true;
 
-        do {
+        while (running) {
+
             System.out.println("\n===== STUDENT MANAGEMENT SYSTEM =====");
-
             System.out.println("1. Add Student");
             System.out.println("2. View Students");
             System.out.println("3. Update Student");
@@ -25,42 +26,12 @@ public class Main {
             System.out.println("6. Search Student");
             System.out.println("7. Exit");
 
-            System.out.print("Enter your choice: ");
-
-            //exception handling
-            try {
-                choice = Integer.parseInt(sc.nextLine());
-
-            } catch (NumberFormatException e) {
-                System.out.println("Please enter a valid number!");
-                continue;
-            }
+            int choice = readInt("Enter your choice: ");
 
             switch (choice) {
+
                 case 1:
-                    System.out.print("Enter ID: ");
-                    int id = Integer.parseInt(sc.nextLine());
-
-                    System.out.print("Enter Name: ");
-                    String name = sc.nextLine();
-
-                    System.out.print("Enter Gender: ");
-                    String gender = sc.nextLine();
-
-                    System.out.print("Enter DOB: ");
-                    String dob = sc.nextLine();
-
-                    System.out.print("Enter Department: ");
-                    String department = sc.nextLine();
-
-                    System.out.print("Enter Course: ");
-                    String course = sc.nextLine();
-
-                    System.out.print("Enter Admission Date: ");
-                    String date = sc.nextLine();
-
-                    Student s = new Student(id, name, gender, dob, department, course, date, true);
-                    features.addStudent(s);
+                    addStudent(features);
                     break;
 
                 case 2:
@@ -68,59 +39,137 @@ public class Main {
                     break;
 
                 case 3:
-                    System.out.print("Enter Student ID: ");
-                    id = Integer.parseInt(sc.nextLine());
-
-                    System.out.print("Enter new name: ");
-                    name = sc.nextLine();
-
-                    System.out.print("Enter new gender: ");
-                    gender = sc.nextLine();
-
-                    System.out.print("Enter new DOB: ");
-                    dob = sc.nextLine();
-
-                    System.out.print("Enter new department: ");
-                    department = sc.nextLine();
-
-                    System.out.print("Enter new course: ");
-                    course = sc.nextLine();
-
-                    System.out.print("Enter new admission date: ");
-                    date = sc.nextLine();
-
-                    features.updateStudent(id, name, gender, dob, department, course, date);
-
+                    updateStudent(features);
                     break;
 
                 case 4:
-                    System.out.print("Enter Student ID: ");
-                    id = Integer.parseInt(sc.nextLine());
-                    features.deleteStudent(id);
+                    int deleteId = readPositiveInt("Enter Student ID: ");
+                    features.deleteStudent(deleteId);
                     break;
 
                 case 5:
-                    System.out.print("Enter Student ID: ");
-                    id = Integer.parseInt(sc.nextLine());
-                    features.changeStatus(id);
+                    int statusId = readPositiveInt("Enter Student ID: ");
+                    features.changeStatus(statusId);
                     break;
 
                 case 6:
-                    System.out.print("Enter Id");
-                    id = Integer.parseInt(sc.nextLine());
-                    features.SearchStudent(id);
+                    int searchId = readPositiveInt("Enter Student ID: ");
+                    features.SearchStudent(searchId);
                     break;
 
                 case 7:
-                    System.out.println("Thank you");
+                    running = false;
+                    System.out.println("Thank you!");
                     break;
 
                 default:
-                    System.out.println("Invalid choice!");
+                    System.out.println("Invalid choice! Enter 1 to 7.");
             }
+        }
 
-        } while (choice != 7);
         sc.close();
+    }
 
+    // Add Student.
+    private static void addStudent(StudentFeatures features) {
+
+        int id = readPositiveInt("Enter ID: ");
+
+        String name = readRequiredText("Enter Name: ");
+        String gender = readGender();
+        String dob = readDate("Enter DOB (dd/MM/yyyy): ");
+        String department = readRequiredText("Enter Department: ");
+        String course = readRequiredText("Enter Course: ");
+        String admissionDate = readDate("Enter Admission Date (dd/MM/yyyy): ");
+
+        // Create student object.
+        Student student = new Student(id, name, gender, dob, department, course, admissionDate, true);
+
+        features.addStudent(student);
+    }
+
+    // Update Student.
+    private static void updateStudent(StudentFeatures features) {
+
+        int id = readPositiveInt("Enter Student ID to update: ");
+        String name = readRequiredText("Enter New Name: ");
+        String gender = readGender();
+        String dob = readDate("Enter New DOB (dd/MM/yyyy): ");
+        String department = readRequiredText("Enter New Department: ");
+        String course = readRequiredText("Enter New Course: ");
+        String admissionDate = readDate("Enter New Admission Date (dd/MM/yyyy): ");
+
+        features.updateStudent(id, name, gender, dob, department, course, admissionDate);
+    }
+
+    // Read integer safely.
+    private static int readInt(String prompt) {
+
+        while (true) {
+            System.out.print(prompt);
+            String input = sc.nextLine().trim();
+
+            try {
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number! Please try again.");
+            }
+        }
+    }
+
+    // Validate positive ID.
+    private static int readPositiveInt(String prompt) {
+
+        while (true) {
+            int value = readInt(prompt);
+            if (InputValidator.isValidId(value)) {
+                return value;
+            }
+            System.out.println("ID must be greater than zero.");
+        }
+    }
+
+    // Validate required text.
+    private static String readRequiredText(String prompt) {
+
+        while (true) {
+            System.out.print(prompt);
+            String value = sc.nextLine().trim();
+            if (InputValidator.isValidText(value)) {
+                return value;
+            }
+            System.out.println(
+                    "This field is required and cannot contain commas."
+            );
+        }
+    }
+
+    // Validate gender.
+    private static String readGender() {
+
+        while (true) {
+
+            System.out.print("Enter Gender (Male/Female/Other): ");
+
+            String gender = sc.nextLine().trim();
+            if (InputValidator.isValidGender(gender)) {
+                return gender;
+            }
+            System.out.println("Please enter Male, Female or Other.");
+        }
+    }
+
+    // Validate date.
+    private static String readDate(String prompt) {
+
+        while (true) {
+            System.out.print(prompt);
+            String date = sc.nextLine().trim();
+
+            if (InputValidator.isValidDate(date)) {
+                return date;
+            }
+            System.out.println("Invalid date! Use a valid date in dd/MM/yyyy format.");
+        }
     }
 }
